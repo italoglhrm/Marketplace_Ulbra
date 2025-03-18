@@ -1,5 +1,6 @@
 import sys
 import time
+import os
 from colorama import Fore, Style, init
 from tabulate import tabulate
 
@@ -60,14 +61,14 @@ class Produto:
 
 # ====================== SINGLETON DO MARKETPLACE ======================
 class Marketplace:
-    _instance = None  # Armazena a única instância da classe
+    _instance = None  
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(Marketplace, cls).__new__(cls)
             cls._instance.produtos = []
             cls._instance.usuarios = []
-        return cls._instance  # Retorna sempre a mesma instância
+        return cls._instance  
 
     def cadastrar_vendedor(self, nome):
         vendedor = Vendedor(len(self.usuarios) + 1, nome)
@@ -86,7 +87,7 @@ class Marketplace:
         
         tabela = [[p.id_produto, p.nome, f"R${p.preco:.2f}", p.estoque.verificar_estoque()] for p in self.produtos]
         print(f"\n{Fore.CYAN}📌 Produtos Disponíveis:")
-        print(tabulate(tabela, headers=["ID", "Nome", "Preço", "Estoque"], tablefmt="rounded_grid"))
+        print(tabulate(tabela, headers=["ID", "Nome", "Preço", "Estoque"], tablefmt="double_grid"))
 
     def adicionar_produto(self, nome, preco, vendedor, quantidade):
         produto = Produto(len(self.produtos) + 1, nome, preco, vendedor.id_usuario, quantidade)
@@ -101,6 +102,9 @@ class Marketplace:
             print(f"{Fore.RED}⚠ Produto não encontrado!")
 
 # ====================== INTERFACE DO TERMINAL ======================
+def limpar_terminal():
+    os.system("cls" if os.name == "nt" else "clear")
+
 def loading(texto):
     print(f"{Fore.MAGENTA}{texto}", end="")
     for _ in range(3):
@@ -108,11 +112,38 @@ def loading(texto):
         print(".", end="", flush=True)
     print()
 
+def barra():
+    print(f"{Fore.BLUE}" + "="*40)
+
+def cabecalho():
+    limpar_terminal()
+    print(f"{Fore.CYAN}" + "="*40)
+    print(f"{Fore.YELLOW}{' 🛒  TERMINAL MARKETPLACE ':^40}")
+    print(f"{Fore.CYAN}" + "="*40)
+
+def menu_principal():
+    barra()
+    print(f"{Fore.GREEN}📌 MENU PRINCIPAL")
+    print(f"{Fore.YELLOW}1️⃣ Adicionar produto")
+    print(f"{Fore.YELLOW}2️⃣ Listar produtos")
+    print(f"{Fore.YELLOW}3️⃣ Comprar produto")
+    print(f"{Fore.YELLOW}4️⃣ Ver carrinho")
+    print(f"{Fore.YELLOW}5️⃣ Sair")
+    barra()
+    return input(f"{Fore.BLUE}Escolha uma opção: {Fore.RESET}")
+
+def exibir_carrinho(comprador):
+    if not comprador.carrinho:
+        print(f"{Fore.YELLOW}🛒 Carrinho vazio!")
+    else:
+        tabela = [[p.nome, qtd, f"R${p.preco * qtd:.2f}"] for p, qtd in comprador.carrinho]
+        print(f"\n{Fore.GREEN}🛒 Seu Carrinho:")
+        print(tabulate(tabela, headers=["Produto", "Qtd", "Total"], tablefmt="double_grid"))
+
 def main():
-    marketplace = Marketplace()  # Agora, sempre teremos apenas UMA instância
+    marketplace = Marketplace()  
 
-    print(f"{Fore.BLUE}🎉 Bem-vindo ao Marketplace Terminal! 🎉")
-
+    cabecalho()
     nome_vendedor = input(f"{Fore.CYAN}Digite o nome do vendedor: {Fore.RESET}")
     vendedor = marketplace.cadastrar_vendedor(nome_vendedor)
 
@@ -120,14 +151,8 @@ def main():
     comprador = marketplace.cadastrar_comprador(nome_comprador)
 
     while True:
-        print(f"\n{Fore.GREEN}📌 MENU PRINCIPAL")
-        print(f"{Fore.YELLOW}1️⃣ Adicionar produto")
-        print(f"{Fore.YELLOW}2️⃣ Listar produtos")
-        print(f"{Fore.YELLOW}3️⃣ Comprar produto")
-        print(f"{Fore.YELLOW}4️⃣ Ver carrinho")
-        print(f"{Fore.YELLOW}5️⃣ Sair")
-
-        opcao = input(f"{Fore.BLUE}Escolha uma opção: {Fore.RESET}")
+        cabecalho()
+        opcao = menu_principal()
 
         if opcao == "1":
             nome_produto = input(f"{Fore.CYAN}Nome do produto: {Fore.RESET}")
@@ -136,23 +161,25 @@ def main():
             marketplace.adicionar_produto(nome_produto, preco, vendedor, quantidade)
             loading("Cadastrando produto")
             print(f"{Fore.GREEN}✅ Produto cadastrado com sucesso!")
+            time.sleep(1)
 
         elif opcao == "2":
+            cabecalho()
             marketplace.listar_produtos()
+            input(f"{Fore.YELLOW}Pressione ENTER para voltar...")
 
         elif opcao == "3":
+            cabecalho()
             marketplace.listar_produtos()
             produto_id = int(input(f"{Fore.CYAN}Digite o ID do produto para comprar: {Fore.RESET}"))
             quantidade = int(input(f"{Fore.CYAN}Quantidade: {Fore.RESET}"))
             marketplace.comprar_produto(comprador, produto_id, quantidade)
+            time.sleep(1)
 
         elif opcao == "4":
-            if not comprador.carrinho:
-                print(f"{Fore.YELLOW}🛒 Carrinho vazio!")
-            else:
-                tabela = [[p.nome, qtd, f"R${p.preco * qtd:.2f}"] for p, qtd in comprador.carrinho]
-                print(f"\n{Fore.GREEN}🛒 Seu Carrinho:")
-                print(tabulate(tabela, headers=["Produto", "Qtd", "Total"], tablefmt="rounded_grid"))
+            cabecalho()
+            exibir_carrinho(comprador)
+            input(f"{Fore.YELLOW}Pressione ENTER para voltar...")
 
         elif opcao == "5":
             print(f"{Fore.RED}👋 Saindo do Marketplace... Até mais!")
@@ -160,6 +187,7 @@ def main():
 
         else:
             print(f"{Fore.RED}❌ Opção inválida! Tente novamente.")
+            time.sleep(1)
 
 if __name__ == "__main__":
     main()
