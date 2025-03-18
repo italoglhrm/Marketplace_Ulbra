@@ -1,5 +1,3 @@
-# IDEIA
-
 import sys
 import time
 from colorama import Fore, Style, init
@@ -60,10 +58,16 @@ class Produto:
         self.vendedor_id = vendedor_id
         self.estoque = Estoque(id_produto, quantidade_inicial)
 
+# ====================== SINGLETON DO MARKETPLACE ======================
 class Marketplace:
-    def __init__(self):
-        self.produtos = []
-        self.usuarios = []
+    _instance = None  # Armazena a única instância da classe
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Marketplace, cls).__new__(cls)
+            cls._instance.produtos = []
+            cls._instance.usuarios = []
+        return cls._instance  # Retorna sempre a mesma instância
 
     def cadastrar_vendedor(self, nome):
         vendedor = Vendedor(len(self.usuarios) + 1, nome)
@@ -105,10 +109,10 @@ def loading(texto):
     print()
 
 def main():
-    marketplace = Marketplace()
-    
+    marketplace = Marketplace()  # Agora, sempre teremos apenas UMA instância
+
     print(f"{Fore.BLUE}🎉 Bem-vindo ao Marketplace Terminal! 🎉")
-    
+
     nome_vendedor = input(f"{Fore.CYAN}Digite o nome do vendedor: {Fore.RESET}")
     vendedor = marketplace.cadastrar_vendedor(nome_vendedor)
 
