@@ -44,18 +44,24 @@ class Marketplace:
         print(f"[Marketplace] Produto adicionado: {produto}")
 
     def remover_produto(self, nome):
-        # Remove o produto com o nome especificado da lista de produtos
-        self.produtos = [p for p in self.produtos if p.nome != nome]
-        print(f"[Marketplace] Produto removido: {nome}")
+        # Verifica se o produto existe antes de remover
+        produto = next((p for p in self.produtos if p.nome == nome), None)
+        if produto:
+            self.produtos.remove(produto)
+            print(f"[Marketplace] Produto removido: {nome}")
+        else:
+            print(f"[Marketplace] Produto '{nome}' não encontrado.")
 
     def listar_produtos(self):
         # Exibe todos os produtos disponíveis no marketplace
         if not self.produtos:
             print("[Marketplace] Nenhum produto disponível.")
+            return False
         else:
             print("\n[Marketplace] Produtos disponíveis:")
             for p in self.produtos:
                 print(f"- {p}")
+            return True
 
     def realizar_pedido(self, nome_produto, comprador):
         # Realiza um pedido se o produto estiver disponível
@@ -69,17 +75,23 @@ class Marketplace:
 
     def cancelar_pedido(self, nome_produto, comprador):
         # Cancela um pedido baseado no nome do produto e o comprador
-        self.pedidos = [p for p in self.pedidos if not (p.produto.nome == nome_produto and p.comprador == comprador)]
-        print(f"[Marketplace] Pedido cancelado: {nome_produto} por {comprador}")
+        pedido = next((p for p in self.pedidos if p.produto.nome == nome_produto and p.comprador == comprador), None)
+        if pedido:
+            self.pedidos.remove(pedido)
+            print(f"[Marketplace] Pedido cancelado: {nome_produto} por {comprador}")
+        else:
+            print(f"[Marketplace] Pedido de '{nome_produto}' por '{comprador}' não encontrado.")
 
     def listar_pedidos(self):
         # Exibe todos os pedidos realizados no marketplace
         if not self.pedidos:
             print("[Marketplace] Nenhum pedido realizado ainda.")
+            return False
         else:
             print("\n[Marketplace] Pedidos realizados:")
             for p in self.pedidos:
                 print(f"- {p}")
+            return True
 
     def consultar_pedidos_comprador(self, comprador):
         # Exibe os pedidos feitos por um comprador específico
@@ -126,21 +138,24 @@ def executar():
             marketplace.listar_produtos()
 
         elif opcao == "4":
-            comprador = input("Nome do comprador: ")
-            produto = input("Produto desejado: ")
-            marketplace.realizar_pedido(produto, comprador)
+            if marketplace.listar_produtos():
+                comprador = input("Nome do comprador: ")
+                produto = input("Produto desejado: ")
+                marketplace.realizar_pedido(produto, comprador)
 
         elif opcao == "5":
-            comprador = input("Nome do comprador: ")
-            produto = input("Produto do pedido a cancelar: ")
-            marketplace.cancelar_pedido(produto, comprador)
-
+            if marketplace.listar_pedidos():
+                comprador = input("Nome do comprador: ")
+                produto = input("Produto do pedido a cancelar: ")
+                marketplace.cancelar_pedido(produto, comprador)
+            
         elif opcao == "6":
             marketplace.listar_pedidos()
 
         elif opcao == "7":
-            comprador = input("Nome do comprador: ")
-            marketplace.consultar_pedidos_comprador(comprador)
+            if marketplace.listar_pedidos():
+                comprador = input("Nome do comprador: ")
+                marketplace.consultar_pedidos_comprador(comprador)
 
         elif opcao == "8":
             print("Encerrando sistema... Até logo!")
