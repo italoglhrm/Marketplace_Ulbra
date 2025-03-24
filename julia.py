@@ -89,13 +89,13 @@ def menu():
             print("\nEscolha um produto pelo número:")
             for i, produto in enumerate(produtos):
                 print(f"{i + 1}. {produto}")
-                escolha = int(input("Digite o número do produto: ")) - 1
-                if 0 <= escolha < len(produtos):
-                    marketplace.realizar_pedido(Pedido(cliente, produtos[escolha]))
-                    print("Pedido realizado com sucesso!")
-                else:
-                    print("Escolha inválida.")
-        
+            escolha = int(input("Digite o número do produto: ")) - 1
+            if 0 <= escolha < len(produtos):
+                marketplace.realizar_pedido(Pedido(cliente, produtos[escolha]))
+                print("Pedido realizado com sucesso!")
+            else:
+                print("Escolha inválida.")
+            
         elif opcao == "4":
             pedidos = marketplace.listar_pedidos()
             if pedidos:
